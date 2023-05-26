@@ -1,3 +1,4 @@
+const { keep_alive } = require("./keep_alive");
 const Discord = require("discord.js");
 const client = new Discord.Client({
   disableMentions: 'everyone'
@@ -5,7 +6,7 @@ const client = new Discord.Client({
 require("dotenv").config()
 require('discord-reply');
 const { Database } = require("quickmongo");
-const db = new Database(process.env.Mongo)
+const db = new Database(process.env.MONGO)
 const randomstring = require("randomstring");
 const disbut = require('discord-buttons');
 require('discord-buttons')(client);
@@ -23,19 +24,36 @@ async function channelLog(embed) {
 client.on('ready', async () => {
   await console.clear()
   channelLog(`> The **Bot** is connecting to discord API`)
-  console.log(`Made by Tejas Lamba$1924`)
-  console.log(`Credits | Visa2Code | https://discord.gg/xtessK2DPA`)
-  console.log(`Join above or you gay`)
-  client.user.setActivity(config.status.name, { type: config.status.type.toUpperCase(), url: "https://twitch.tv/SmallCadaver" })
+  console.log(`Made by Noob`)
+  console.log(`Credits | APS Studio | https://discord.gg/8STqXTZzDW`)
+  console.log(`Join above Server or your nub`)
+
 });
-client.on("message", async(message) =>{
+client.on('ready', () => {
+
+  console.log(client.user.tag + " has logged in.");
+  client.user
+    .setPresence({
+      activity: {
+        name: `Type ${config.prefix}help to start | QUEST ROLEPLAY ID`,
+        type: "WATCHING",
+      },
+      status: "online",
+    })
+
+    .catch(console.error);
+
+});
+client.on("message", async (message) => {
+
   if (message.author.bot || !message.guild) return;
   let args = message.content.toLowerCase().split(" ");
   let command = args.shift()
-  if (command == prefix + `help`) {
-    let embed = new Discord.MessageEmbed()
-      .setTitle(`Bot commands list`)
-      .setDescription(`> \`${prefix}send\` - Send a message to open tickets
+  if (message.member.hasPermission('MANAGE_ROLES')) {
+    if (command == prefix + `help`) {
+      let embed = new Discord.MessageEmbed()
+        .setTitle(`Bot commands list`)
+        .setDescription(`> \`${prefix}send\` - Send a message to open tickets
 > \`${prefix}add\` - Adds a member to a specific ticket
 > \`${prefix}remove\` - Removes a member to a specific ticket.
 > \`${prefix}delete\` - Delete a specific ticket
@@ -44,17 +62,22 @@ client.on("message", async(message) =>{
 > \`${prefix}rename\` - Rename a specific ticket
 > \`${prefix}setchannels\` - set channels relating to ticket log and category
 > \`${prefix}setstaff\` - set staff roles`)
-      .setTimestamp()
-      .setColor(0x5865F2)
-      .setFooter(`All rights belong to https://discord.gg/xtessK2DPA`)
-    message.lineReply({ embed: embed })
+        .setTimestamp()
+        .setColor(`#33cd15`)
+        .setFooter(`APS Studio Server :-https://discord.gg/8STqXTZzDW`)
+      message.lineReply({ embed: embed })
+    }
+  } else {
+
+    message.channel.send(`${user.tag}` + "You donot have permission to use this command")
+
   }
   if (command == prefix + `add`) {
-    if (!message.member.hasPermission('MANAGE_MESSAGES')) return message.lineReply(`:x: This command requires \`MANAGE_MESSAGES\` permission.`);
+    if (!message.member.hasPermission('MANAGE_ROLES')) return message.lineReply(`:x: This command requires \`MANAGE_ROLES\` permission.`);
     let args = message.content.split(' ').slice(1).join(' ');
     let channel = message.mentions.channels.first() || message.channel;
     const sfats = await db.get(`Staff_${message.guild.id}`)
-    if (!sfats) return message.lineReply({ embed: { description: `this server needs to set up their staff roles first! \`{prefix}setstaff\``, color: 0x5865F2 } })
+    if (!sfats) return message.lineReply({ embed: { description: `this server needs to set up their staff roles first! \`${prefix}setstaff\``, color: `#33cd15` } })
     if (await db.get(`ticket_${channel.id}_${message.guild.id}`)) {
       let member = message.mentions.members.first() || message.guild.members.cache.get(args || message.guild.members.cache.find(x => x.user.username === args || x.user.username === args));
       if (!member) return message.lineReply(`Mention a member of its ID`);
@@ -65,7 +88,7 @@ client.on("message", async(message) =>{
           ATTACH_FILES: true,
           READ_MESSAGE_HISTORY: true,
         }).then(() => {
-          message.lineReply({ embed: { description: `${member} has been successfully added to ${channel}`, color: 0x5865F2 } });
+          message.lineReply({ embed: { description: `${member} has been successfully added to ${channel}`, color: `#33cd15` } });
           let log_embed = new Discord.MessageEmbed()
             .setTitle(`A person has been added to a ticket`)
             .addField(`Ticket`, `<#${channel.id}>`)
@@ -83,11 +106,11 @@ client.on("message", async(message) =>{
     }
   }
   if (command == prefix + `remove`) {
-    if (!message.member.hasPermission('MANAGE_MESSAGES')) return message.lineReply(`:x: This command requires \`MANAGE_MESSAGES\` permission.`);
+    if (!message.member.hasPermission('MANAGE_ROLES')) return message.lineReply(`:x: This command requires \`MANAGE_ROLES\` permission.`);
     let args = message.content.split(' ').slice(1).join(' ');
     let channel = message.mentions.channels.first() || message.channel;
     const sfats = await db.get(`Staff_${message.guild.id}`)
-    if (!sfats) return message.lineReply({ embed: { description: `this server needs to set up their staff roles first! \`{prefix}setstaff\``, color: 0x5865F2 } })
+    if (!sfats) return message.lineReply({ embed: { description: `this server needs to set up their staff roles first! \`${prefix}setstaff\``, color: `#33cd15` } })
     if (await db.get(`ticket_${channel.id}_${message.guild.id}`)) {
       let member = message.mentions.members.first() || message.guild.members.cache.get(args || message.guild.members.cache.find(x => x.user.username === args || x.user.username === args));
       if (!member) return message.lineReply(`Mention a member of its ID`);
@@ -95,7 +118,7 @@ client.on("message", async(message) =>{
         channel.updateOverwrite(member.user, {
           VIEW_CHANNEL: false,
         }).then(() => {
-           let log_embed = new Discord.MessageEmbed()
+          let log_embed = new Discord.MessageEmbed()
             .setTitle(`People removed to ticket`)
             .addField(`Ticket`, `<#${channel.id}>`)
             .addField(`person added`, member.user)
@@ -104,7 +127,7 @@ client.on("message", async(message) =>{
             .setColor(`RED`)
             .setFooter(message.guild.name, message.guild.iconURL())
           channelLog(log_embed)
-          message.lineReply({ embed: { description: `Successfully delete ${member} from ${channel}`, color: 0x5865F2 } });
+          message.lineReply({ embed: { description: `Successfully delete ${member} from ${channel}`, color: `#33cd15` } });
         });
       }
       catch (e) {
@@ -113,33 +136,33 @@ client.on("message", async(message) =>{
     }
   }
   if (command == prefix + 'delete') {
-    if (!message.member.hasPermission('MANAGE_MESSAGES')) return message.lineReply(`:x: This command requires \`MANAGE_MESSAGES\` permission.`);
+    if (!message.member.hasPermission('MANAGE_ROLES')) return message.lineReply(`:x: This command requires \`MANAGE_ROLES\` permission.`);
     let channel = message.mentions.channels.first() || message.channel;
     const sfats = await db.get(`Staff_${message.guild.id}`)
-    if (!sfats) return message.lineReply({ embed: { description: `this server needs to set up their staff roles first! \`{prefix}setstaff\``, color: 0x5865F2 } })
+    if (!sfats) return message.lineReply({ embed: { description: `this server needs to set up their staff roles first! \`${prefix}setstaff\``, color: `#33cd15` } })
     if (await db.get(`ticket_${channel.id}_${message.guild.id}`)) {
-      message.lineReply({ embed: { description: `Your order is executed after 5 seconds, and it will be closed`, color: 0x5865F2 } })
+      message.lineReply({ embed: { description: `Your order is executed after 5 seconds, and it will be closed`, color: `#33cd15` } })
       setTimeout(async () => {
         let log_embed = new Discord.MessageEmbed()
-            .setTitle(`Ticket Deleted`)
-            .addField(`Ticket number`, `${await db.get(`ticket_${channel.id}_${message.guild.id}`).count}`)
-            .addField(`Ticket by`,`<@!${await db.get(`ticket_${channel.id}_${message.guild.id}`).ticket_by}>`)
-            .addField(`Action by`, `<@!${message.author.id}>`)
-            .setTimestamp()
-            .setColor(`RED`)
-            .setFooter(message.guild.name, message.guild.iconURL())
-          channelLog(log_embed)
-          channel.delete()
+          .setTitle(`Ticket Deleted`)
+          .addField(`Ticket number`, `${await db.get(`ticket_${channel.id}_${message.guild.id}`).count}`)
+          .addField(`Ticket by`, `<@!${await db.get(`ticket_${channel.id}_${message.guild.id}`).ticket_by}>`)
+          .addField(`Action by`, `<@!${message.author.id}>`)
+          .setTimestamp()
+          .setColor(`RED`)
+          .setFooter(message.guild.name, message.guild.iconURL())
+        channelLog(log_embed)
+        channel.delete()
       }, 5000)
     }
   }
   if (command == prefix + 'close') {
-    if (!message.member.hasPermission('MANAGE_MESSAGES')) return message.lineReply(`:x: This command requires \`MANAGE_MESSAGES\` permission.`);
+    if (!message.member.hasPermission('MANAGE_ROLES')) return message.lineReply(`:x: This command requires \`MANAGE_ROLES\` permission.`);
     let channel = message.mentions.channels.first() || message.channel;
     const sfats = await db.get(`Staff_${message.guild.id}`)
-    if (!sfats) return message.lineReply({ embed: { description: `this server needs to set up their staff roles first! \`{prefix}setstaff\``, color: 0x5865F2 } })
+    if (!sfats) return message.lineReply({ embed: { description: `this server needs to set up their staff roles first! \`${prefix}setstaff\``, color: `#33cd15` } })
     if (await db.get(`ticket_${channel.id}_${message.guild.id}`)) {
-      let msg = await message.lineReply({ embed: { description: `Your order is executed after 5 seconds, and it will be closed`, color: 0x5865F2 } })
+      let msg = await message.lineReply({ embed: { description: `Your order is executed after 5 seconds, and it will be closed`, color: `#33cd15` } })
       setTimeout(async () => {
         try {
           msg.delete()
@@ -163,12 +186,12 @@ client.on("message", async(message) =>{
   }
 
   if (command == prefix + 'open') {
-    if (!message.member.hasPermission('MANAGE_MESSAGES')) return message.lineReply(`:x: This command requires \`MANAGE_MESSAGES\` permission.`);
+    if (!message.member.hasPermission('MANAGE_ROLES')) return message.lineReply(`:x: This command requires \`MANAGE_ROLES\` permission.`);
     let channel = message.mentions.channels.first() || message.channel;
     const sfats = await db.get(`Staff_${message.guild.id}`)
-    if (!sfats) return message.lineReply({ embed: { description: `this server needs to set up their staff roles first! \`{prefix}setstaff\``, color: 0x5865F2 } })
+    if (!sfats) return message.lineReply({ embed: { description: `this server needs to set up their staff roles first! \`${prefix}setstaff\``, color: `#33cd15` } })
     if (await db.get(`ticket_${channel.id}_${message.guild.id}`)) {
-      let msg = await message.lineReply({ embed: { description: `Your order is executed after 5 seconds`, color: 0x5865F2 } })
+      let msg = await message.lineReply({ embed: { description: `Your order is executed after 5 seconds`, color: `#33cd15` } })
       setTimeout(async () => {
         try {
           msg.delete()
@@ -208,13 +231,13 @@ client.on("message", async(message) =>{
     }
   }
   if (command == prefix + 'rename' || command == prefix + 'setname') {
-    if (!message.member.hasPermission('MANAGE_MESSAGES')) return message.lineReply(`:x: This command requires \`MANAGE_MESSAGES\` permission.`);
+    if (!message.member.hasPermission('MANAGE_ROLES')) return message.lineReply(`:x: This command requires \`MANAGE_ROLES\` permission.`);
     let channel = message.mentions.channels.first() || message.channel;
     const sfats = await db.get(`Staff_${message.guild.id}`)
-    if (!sfats) return message.lineReply({ embed: { description: `this server needs to set up their staff roles first! \`{prefix}setstaff\``, color: 0x5865F2 } })
+    if (!sfats) return message.lineReply({ embed: { description: `this server needs to set up their staff roles first! \`${prefix}setstaff\``, color: `#33cd15` } })
     if (await db.get(`ticket_${channel.id}_${message.guild.id}`)) {
       let args = message.content.split(' ').slice(1).join(' ');
-      if (!args) return message.lineReply({ embed: { description: `Please select the name you want for the ticket`, color: 0x5865F2 } })
+      if (!args) return message.lineReply({ embed: { description: `Please select the name you want for the ticket`, color: `#33cd15` } })
       channel.setName(args)
       message.delete()
       let log_embed = new Discord.MessageEmbed()
@@ -223,26 +246,26 @@ client.on("message", async(message) =>{
         .addField(`Ticket`, `<#${channel.id}>`)
         .addField(`by`, `<@!${message.author.id}>`)
         .setTimestamp()
-        .setColor(0x5865F2)
+        .setColor(`#33cd15`)
         .setFooter(message.guild.name, message.guild.iconURL())
       channelLog(log_embed)
     }
   }
-  if (command == prefix + 'setstaff'){
+  if (command == prefix + 'setstaff') {
     console.log(args)
     if (!message.member.hasPermission('ADMINISTRATOR')) return message.lineReply(`:x: This command requires \`ADMINISTRATOR\` permission.`);
-    if (args.length != 2) return message.lineReply({ embed: { description: `Please provide an Admin role id, *then* a Mod role id with this command! `, color: 0x5865F2 } })
-    if (message.mentions.roles.length < 2 && !Number(args[0]) && !Number(args[1])) return message.lineReply({ embed: { description: `Please mention an Admin role (or iD) first, *then* a Mod role (or iD) with this command! `, color: 0x5865F2 } })
+    if (args.length != 2) return message.lineReply({ embed: { description: `Please provide an Admin role id, *then* a Mod role id with this command! `, color: `#33cd15` } })
+    if (message.mentions.roles.length < 2 && !Number(args[0]) && !Number(args[1])) return message.lineReply({ embed: { description: `Please mention an Admin role (or iD) first, *then* a Mod role (or iD) with this command! `, color: `#33cd15` } })
     const Admin = message.guild.roles.cache.get(args[0]);
     const Moder = message.guild.roles.cache.get(args[1]);
     await db.set(`Staff_${message.guild.id}.Admin`, Admin.id)
     await db.set(`Staff_${message.guild.id}.Moder`, Moder.id)
     message.react("✅")
   }
-  if (command == prefix + 'setchannels'){
+  if (command == prefix + 'setchannels') {
     if (!message.member.hasPermission('ADMINISTRATOR')) return message.lineReply(`:x: This command requires \`ADMINISTRATOR\` permission.`);
-    if (args.length != 2) return message.lineReply({ embed: { description: `Please mention a channelid, *then* a categoryid with this command! `, color: 0x5865F2 } })
-    if (message.mentions.roles.length < 2 && !Number(args[0]) && !Number(args[1])) return message.lineReply({ embed: { description: `Please mention an Log Channel (or iD), *then* a Category (or iD) with this command! `, color: 0x5865F2 } })
+    if (args.length != 2) return message.lineReply({ embed: { description: `Please mention a channelid, *then* a categoryid with this command! `, color: `#33cd15` } })
+    if (message.mentions.roles.length < 2 && !Number(args[0]) && !Number(args[1])) return message.lineReply({ embed: { description: `Please mention an Log Channel (or iD), *then* a Category (or iD) with this command! `, color: `#33cd15` } })
     const txt = message.guild.channels.cache.get(args[0]);
     const cat = message.guild.channels.cache.get(args[1]);
     if (txt.type !== "text") return message.channel.send("The first input should be a text channel");
@@ -252,36 +275,72 @@ client.on("message", async(message) =>{
     message.react("✅")
   }
   if (command == prefix + 'send' || command == prefix + 'ticket') {
-    if (!message.member.hasPermission('ADMINISTRATOR')) return message.lineReply(`:x: This command requires \`ADMINISTRATOR\` permission.`);
+    if (!message.member.hasPermission('MANAGE_ROLES')) return message.lineReply(`:x: This command requires \`MANAGE_ROLES\` permission.`);
     const sfats = await db.get(`Staff_${message.guild.id}`)
     const sfas = await db.get(`Channels_${message.guild.id}`)
-    if (!sfats || sfats === null) return message.lineReply({ embed: { description: `This server needs to set up their staff roles first! \`${prefix}setstaff\``, color: 0x5865F2 } })
-    if (!sfas || sfas === null) return message.lineReply({ embed: { description: `This server needs to set up their ticket channels first! \`${prefix}setchannels\``, color: 0x5865F2 } })
+    if (!sfats || sfats === null) return message.lineReply({ embed: { description: `This server needs to set up their staff roles first! \`${prefix}setstaff\``, color: `#33cd15` } })
+    if (!sfas || sfas === null) return message.lineReply({ embed: { description: `This server needs to set up their ticket channels first! \`${prefix}setchannels\``, color: `#33cd15` } })
     let idd = randomstring.generate({ length: 20 })
     let args = message.content.split(' ').slice(1).join(' ');
-    if (!args) args = `Tickets`
+    if (!args) args = `**Tickets support Quest Roleplay ID**`
     let button1 = new MessageMenuOption()
-    .setLabel('Special Support')
-    .setEmoji('🔴')
-    .setValue("men")
-    .setDescription('Use this to contact Admins+ only!')
+      .setLabel('General support')
+      .setEmoji('891421982309089290')
+      .setValue("men")
+      .setDescription('Use this to contact Admins+ only!')
     let button3 = new MessageMenuOption()
-    .setLabel('General Support')
-    .setEmoji('🟠')
-    .setValue("hlp")
-    .setDescription('Use this to contact Helpers and higher ranks!')  
+      .setLabel('Order Donation')
+      .setEmoji('891453066501587005')
+      .setValue("order")
+      .setDescription('Use this to contact Helpers and higher ranks!')
+    let button7 = new MessageMenuOption()
+      .setLabel('Claim Your Reward')
+      .setEmoji('897868975608836188')
+      .setValue("hlp")
+      .setDescription('Use this to contact Helpers and higher ranks!')
+    let button6 = new MessageMenuOption()
+      .setLabel('Report a Player')
+      .setEmoji('891461376277618739')
+      .setValue("report")
+      .setDescription('Use this to contact Admins+ only!')
+    let button5 = new MessageMenuOption()
+      .setLabel('help')
+      .setEmoji('892090597433823323')
+      .setValue("code")
+      .setDescription('Use this to contact Helpers and higher ranks!')
+    let button4 = new MessageMenuOption()
+      .setLabel('Tanya Donation')
+      .setEmoji('898132754615660554')
+      .setValue("des")
+      .setDescription('Use this to contact Helpers and higher ranks!')
+    let button2 = new MessageMenuOption()
+      .setLabel('Error and Bugs')
+      .setEmoji('891453513316565052')
+      .setValue("be")
+      .setDescription('Use this to contact Helpers and higher ranks!')
+    let button8 = new MessageMenuOption()
+      .setLabel('Facing Issue on Joining Verification')
+      .setEmoji('891459284183941170')
+      .setValue("jve")
+      .setDescription('Use this to contact Helpers and higher ranks!')
+    let button9 = new MessageMenuOption()
+      .setLabel('Cari tahu tentang kota')
+      .setEmoji('898080548256354314')
+      .setValue("apl")
+      .setDescription('Use this to contact Helpers and higher ranks!')
     let select = new MessageMenu()
-    .setID(idd)
-    .setPlaceholder('Create A ticket!')
-    .setMaxValues(1)
-    .setMinValues(1)
-    .addOptions(button1, button3)
+      .setID(idd)
+      .setPlaceholder('Create A ticket!')
+      .setMaxValues(1)
+      .setMinValues(1)
+      .addOptions(button1, button2, button4, button3, button5, button6, button7, button8, button9)
     let embed = new Discord.MessageEmbed()
       .setTitle(args)
-      .setDescription("To create a ticket, select one of the options below from the menu.")
+      .setDescription("**__To create a ticket__**, pilih salah satu opsi di bawah dari menu <@&986589298679758890>\n **If you need help, want to apply or if you are having __Questions__, then please Open a Ticket**")
+      .setImage('https://media.discordapp.net/attachments/886502267262488586/893408033881849886/Venom.png')
       .setThumbnail(message.guild.iconURL())
       .setTimestamp()
-      .setColor(0x5865F2)
+      .setColor(`#f728e3`)
       .setFooter(message.guild.name, message.guild.iconURL())
     let msg = await message.channel.send({ embed: embed, component: select }).then(async msg => {
       msg.pin()
@@ -290,20 +349,21 @@ client.on("message", async(message) =>{
         .addField(`Channel`, `<#${message.channel.id}>`)
         .addField(`by`, `<@!` + message.author.id + `>`)
         .setTimestamp()
-        .setColor(0x5865F2)
+        .setColor(`#33cd15`)
         .setFooter(message.guild.name, message.guild.iconURL())
       channelLog(log_embed)
       await db.set(`tickets_${idd}_${message.guild.id}`, {
         reason: args,
         msgID: msg.id,
         id: idd,
-        options: [button1,  button3],
+        options: [button1, button2, button3, button4, button5, button6, button7, button8, button9],
         guildName: message.guild.name,
         guildAvatar: message.guild.iconURL(),
         channelID: message.channel.id
       })
     })
   }
+
 })
 
 
@@ -315,7 +375,7 @@ client.on('clickMenu', async (button) => {
     let count = await db.get(`counts_${button.message.id}_${button.message.guild.id}`)
     let channel;
     await button.clicker.fetch();
-    if (button.values[0] === "men") { // Admins +
+    if (button.values[0] === "men") { //admin +
       button.guild.channels.create(`ticket-${count}`, {
         permissionOverwrites: [
           {
@@ -324,135 +384,524 @@ client.on('clickMenu', async (button) => {
           },
           {
             id: (await db.get(`Staff_${button.message.guild.id}.Admin`)),
-            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`,`MANAGE_MESSAGES`],
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Moder`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
           },
           {
             id: button.clicker.user.id,
             allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`],
           },
-        ], parent: (await db.get(`Channels_${button.message.guild.id}.Cat`)), position: 1, topic: `A Ticket : <@!${button.clicker.user.id}>`, reason: "All rights reserved to Visa2Code"
+        ], parent: (await db.get(`Channels_${button.message.guild.id}.Cat`)), position: 1, topic: `A Ticket : <@!${button.clicker.user.id}>`, reason: "All rights reserved to HjOp"
       }).then(async channel => {
         channel = channel
         await db.set(`ticket_${channel.id}_${button.message.guild.id}`, { count: count, ticket_by: button.clicker.user.id })
-      
+
         await button.reply.edit(`
-  **Your ticket has been successfully opened** <#${channel.id}>`, true)
-            let log_embed = new Discord.MessageEmbed()
-              .setTitle(`New ticket opened`)
-              .addField(`Ticket`, `<#${channel.id}>`)
-              .addField(`Ticket by`, `<@!${button.clicker.user.id}>`)
-              .addField(`Ticket number`, count)
-              .setTimestamp()
-              .setColor(`GREEN`)
-            channelLog(log_embed)
+      **Your ticket has been successfully opened** <#${channel.id}>`, true)
+        let log_embed = new Discord.MessageEmbed()
+          .setTitle(`New ticket opened`)
+          .addField(`Ticket`, `<#${channel.id}>`)
+          .addField(`Ticket by`, `<@!${button.clicker.user.id}>`)
+          .addField(`Ticket number`, count)
+          .setTimestamp()
+          .setColor(`GREEN`)
+        channelLog(log_embed)
         const embedticket = new Discord.MessageEmbed()
           .setTimestamp()
-          .setTitle("Specialised Support")
+          .setTitle("Ask any question")
           .setFooter(`Ticket opened at`)
-          .setColor(0x5865F2)
+          .setColor(`#33cd15`)
           .setDescription(`Support will be with you soon.\n
-  To close this ticket, interact with 🔒`)
+      To close this ticket, interact with 🔒`)
         let idd = randomstring.generate({ length: 25 })
+        await db.set(`close_${button.clicker.user.id}`, idd)
         let bu1tton = new disbut.MessageButton()
-          .setStyle(`gray`)
+          .setStyle(`red`)
+          .setEmoji(`🔒`)
+          .setLabel(`Close ticket`)
+          .setID(idd)
+        channel.send(`Welcome <@!${button.clicker.user.id}> wait for Supporter And Helper`, { embed: embedticket, component: bu1tton }).then(msg => {
+          msg.pin()
+        })
+      })
+    }
+
+    if (button.values[0] === "jve") { //admin +
+      button.guild.channels.create(`verification-${count}`, {
+        permissionOverwrites: [
+          {
+            id: button.guild.roles.everyone,
+            deny: ['VIEW_CHANNEL'],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Admin`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Moder`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: button.clicker.user.id,
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`],
+          },
+        ], parent: (await db.get(`Channels_${button.message.guild.id}.Cat`)), position: 1, topic: `A Ticket : <@!${button.clicker.user.id}>`, reason: "All rights reserved to HjOp"
+      }).then(async channel => {
+        channel = channel
+        await db.set(`ticket_${channel.id}_${button.message.guild.id}`, { count: count, ticket_by: button.clicker.user.id })
+
+        await button.reply.edit(`
+      **Your ticket has been successfully opened** <#${channel.id}>`, true)
+        let log_embed = new Discord.MessageEmbed()
+          .setTitle(`New ticket opened`)
+          .addField(`Ticket`, `<#${channel.id}>`)
+          .addField(`Ticket by`, `<@!${button.clicker.user.id}>`)
+          .addField(`Ticket number`, count)
+          .setTimestamp()
+          .setColor(`GREEN`)
+        channelLog(log_embed)
+        const embedticket = new Discord.MessageEmbed()
+          .setTimestamp()
+          .setTitle("Facing Error on Joining")
+          .setFooter(`Ticket opened at`)
+          .setColor(`#33cd15`)
+          .setDescription(`Support will be with you soon.\n
+      To close this ticket, interact with 🔒`)
+        let idd = randomstring.generate({ length: 25 })
+        await db.set(`close_${button.clicker.user.id}`, idd)
+        let bu1tton = new disbut.MessageButton()
+          .setStyle(`red`)
+          .setEmoji(`🔒`)
+          .setLabel(`Close ticket`)
+          .setID(idd)
+        channel.send(`Welcome <@!${button.clicker.user.id}> wait for Supporter And Helper`, { embed: embedticket, component: bu1tton }).then(msg => {
+          msg.pin()
+        })
+      })
+    }
+    if (button.values[0] === "hlp") { // help +
+      button.guild.channels.create(`reward-${count}`, {
+        permissionOverwrites: [
+          {
+            id: button.guild.roles.everyone,
+            deny: ['VIEW_CHANNEL'],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Admin`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Moder`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: button.clicker.user.id,
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`],
+          },
+        ], parent: (await db.get(`Channels_${button.message.guild.id}.Cat`)), position: 1, topic: `A Ticket : <@!${button.clicker.user.id}>`, reason: "All rights reserved to HjOp"
+      }).then(async channel => {
+        channel = channel
+        await db.set(`ticket_${channel.id}_${button.message.guild.id}`, { count: count, ticket_by: button.clicker.user.id })
+
+        await button.reply.edit(`
+      **Your ticket has been successfully opened** <#${channel.id}>`, true)
+        let log_embed = new Discord.MessageEmbed()
+          .setTitle(`New ticket opened`)
+          .addField(`Ticket`, `<#${channel.id}>`)
+          .addField(`Ticket by`, `<@!${button.clicker.user.id}>`)
+          .addField(`Ticket number`, count)
+          .setTimestamp()
+          .setColor(`GREEN`)
+        channelLog(log_embed)
+        const embedticket = new Discord.MessageEmbed()
+          .setTimestamp()
+          .setTitle("This is offtopic help section")
+          .setFooter(`Ticket opened at`)
+          .setColor(`#33cd15`)
+          .setDescription(`Support will be with you soon.\n
+      To close this ticket, interact with 🔒`)
+        let idd = randomstring.generate({ length: 25 })
+        await db.set(`close_${button.clicker.user.id}`, idd)
+        let bu1tton = new disbut.MessageButton()
+          .setStyle(`red`)
+          .setEmoji(`🔒`)
+          .setLabel(`Close ticket`)
+          .setID(idd)
+        channel.send(`Welcome <@!${button.clicker.user.id}> wait for Supporter And Helper`, { embed: embedticket, component: bu1tton }).then(msg => {
+          msg.pin()
+        })
+      })
+    }
+
+    if (button.values[0] === "report") { // repot +
+      button.guild.channels.create(`report-${count}`, {
+        permissionOverwrites: [
+          {
+            id: button.guild.roles.everyone,
+            deny: ['VIEW_CHANNEL'],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Admin`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Moder`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: button.clicker.user.id,
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`],
+          },
+        ], parent: (await db.get(`Channels_${button.message.guild.id}.Cat`)), position: 1, topic: `A Ticket : <@!${button.clicker.user.id}>`, reason: "All rights reserved to HjOp"
+      }).then(async channel => {
+        channel = channel
+        await db.set(`ticket_${channel.id}_${button.message.guild.id}`, { count: count, ticket_by: button.clicker.user.id })
+
+        await button.reply.edit(`
+      **Your ticket has been successfully opened** <#${channel.id}>`, true)
+        let log_embed = new Discord.MessageEmbed()
+          .setTitle(`New ticket opened`)
+          .addField(`Ticket`, `<#${channel.id}>`)
+          .addField(`Ticket by`, `<@!${button.clicker.user.id}>`)
+          .addField(`Ticket number`, count)
+          .setTimestamp()
+          .setColor(`GREEN`)
+        channelLog(log_embed)
+        const embedticket = new Discord.MessageEmbed()
+          .setTimestamp()
+          .setTitle("Report A Member")
+          .setFooter(`Ticket opened at`)
+          .setColor(`#33cd15`)
+          .setDescription(`Support will be with you soon.\n
+      To close this ticket, interact with 🔒`)
+        let idd = randomstring.generate({ length: 25 })
+        await db.set(`close_${button.clicker.user.id}`, idd)
+        let bu1tton = new disbut.MessageButton()
+          .setStyle(`red`)
+          .setEmoji(`🔒`)
+          .setLabel(`Close ticket`)
+          .setID(idd)
+        channel.send(`Welcome <@!${button.clicker.user.id}> wait for Supporter And Helper`, { embed: embedticket, component: bu1tton }).then(msg => {
+          msg.pin()
+        })
+      })
+    }
+    if (button.values[0] === "code") { // code +
+      button.guild.channels.create(`help-${count}`, {
+        permissionOverwrites: [
+          {
+            id: button.guild.roles.everyone,
+            deny: ['VIEW_CHANNEL'],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Admin`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Moder`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: button.clicker.user.id,
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`],
+          },
+        ], parent: (await db.get(`Channels_${button.message.guild.id}.Cat`)), position: 1, topic: `A Ticket : <@!${button.clicker.user.id}>`, reason: "All rights reserved to HjOp"
+      }).then(async channel => {
+        channel = channel
+        await db.set(`ticket_${channel.id}_${button.message.guild.id}`, { count: count, ticket_by: button.clicker.user.id })
+
+        await button.reply.edit(`
+      **Your ticket has been successfully opened** <#${channel.id}>`, true)
+        let log_embed = new Discord.MessageEmbed()
+          .setTitle(`New ticket opened`)
+          .addField(`Ticket`, `<#${channel.id}>`)
+          .addField(`Ticket by`, `<@!${button.clicker.user.id}>`)
+          .addField(`Ticket number`, count)
+          .setTimestamp()
+          .setColor(`GREEN`)
+        channelLog(log_embed)
+        const embedticket = new Discord.MessageEmbed()
+          .setTimestamp()
+          .setTitle("Help")
+          .setFooter(`Ticket opened at`)
+          .setColor(`#33cd15`)
+          .setDescription(`Support will be with you soon.\n
+      To close this ticket, interact with 🔒`)
+        let idd = randomstring.generate({ length: 25 })
+        await db.set(`close_${button.clicker.user.id}`, idd)
+        let bu1tton = new disbut.MessageButton()
+          .setStyle(`red`)
           .setEmoji(`🔒`)
           .setLabel(`Close`)
           .setID(idd)
-        channel.send(`Welcome <@!${button.clicker.user.id}>`, { embed: embedticket, component: bu1tton }).then(msg => {
+        channel.send(`Welcome <@!${button.clicker.user.id}> wait for Supporter And Helper`, { embed: embedticket, component: bu1tton }).then(msg => {
           msg.pin()
         })
-        })
-      }
-        if (button.values[0] === "hlp"){ // help +
-          button.guild.channels.create(`ticket-${count}`, {
-            permissionOverwrites: [
-              {
-                id: button.guild.roles.everyone,
-                deny: ['VIEW_CHANNEL'],
-              },
-              {
-                id: (await db.get(`Staff_${button.message.guild.id}.Admin`)),
-                allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`,`MANAGE_MESSAGES`],
-              },
-              {
-                id: (await db.get(`Staff_${button.message.guild.id}.Moder`)),
-                allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`,`MANAGE_MESSAGES`],
-              },
-              {
-                id: button.clicker.user.id,
-                allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`],
-              },
-            ], parent: (await db.get(`Channels_${button.message.guild.id}.Cat`)), position: 1, topic: `A Ticket : <@!${button.clicker.user.id}>`, reason: "All rights reserved to Visa2Code"
-          }).then(async channel => {
-            channel = channel
-            await db.set(`ticket_${channel.id}_${button.message.guild.id}`, { count: count, ticket_by: button.clicker.user.id })
-          
-            await button.reply.edit(`
-      **Your ticket has been successfully opened** <#${channel.id}>`, true)
-                let log_embed = new Discord.MessageEmbed()
-                  .setTitle(`New ticket opened`)
-                  .addField(`Ticket`, `<#${channel.id}>`)
-                  .addField(`Ticket by`, `<@!${button.clicker.user.id}>`)
-                  .addField(`Ticket number`, count)
-                  .setTimestamp()
-                  .setColor(`GREEN`)
-                channelLog(log_embed)
-            const embedticket = new Discord.MessageEmbed()
-              .setTimestamp()
-              .setTitle("General Support")
-              .setFooter(`Ticket opened at`)
-              .setColor(0x5865F2)
-              .setDescription(`Support will be with you soon.\n
-      To close this ticket, interact with 🔒`)
-            let idd = randomstring.generate({ length: 25 })
-            await db.set(`close_${button.clicker.user.id}`, idd)
-            let bu1tton = new disbut.MessageButton()
-              .setStyle(`gray`)
-              .setEmoji(`🔒`)
-              .setLabel(`Close`)
-              .setID(idd)
-            channel.send(`Welcome <@!${button.clicker.user.id}>`, { embed: embedticket, component: bu1tton }).then(msg => {
-              msg.pin()
-            })
-            })
-        }
-      }
-    });
-      client.on('clickButton', async (button1) => {
-        await button1.clicker.fetch()
-        let idd = randomstring.generate({ length: 25 })
-        await db.set(`close_${button1.clicker.user.id}_sure`, idd)
-        if (button1.id == (await db.get(`close_${button1.clicker.user.id}`))) {
-          let bu0tton = new disbut.MessageButton()
-            .setStyle(`red`)
-            .setLabel(`close`)
-            .setID(idd)
-          await button1.reply.send(`Are you sure you want to close this ticket?`, { component: bu0tton, ephemeral: true });
-        }
       })
-        client.on('clickButton', async (button) => {
-          await button.clicker.fetch()
-          if (button.id == (await db.get(`close_${button.clicker.user.id}_sure`))) {
-          await button.reply.send(`Your order is executed after 5 seconds, and it will be closed`, true)   
-            let ch = button.channel
-            if (!ch) return;
-            setTimeout(async () => {
-              try {
-                await ch.send({ embed: { description: `The ticket has already been closed <@!${button.clicker.user.id}>`, color: `YELLOW` } });
-                let type = 'member'
-                await Promise.all(ch.permissionOverwrites.filter(o => o.type === type).map(o => o.delete()));
-                ch.setName(`closed-ticket`)
-                let log_embed = new Discord.MessageEmbed()
-                  .setTitle(`Ticket closed`)
-                  .addField(`Ticket`, `<#${ch.id}>`)
-                  .addField(`Action by`, `<@!${button.clicker.user.id}>`)
-                  .setTimestamp()
-                  .setColor(`YELLOW`)
-                channelLog(log_embed)
-              } catch (e) {
-                return button.channel.send(`An error occurred, please try again!`);
-              }
-            }, 4000)
-          }
+    }
+
+
+    if (button.values[0] === "order") { //order +
+      button.guild.channels.create(`donasi-${count}`, {
+        permissionOverwrites: [
+          {
+            id: button.guild.roles.everyone,
+            deny: ['VIEW_CHANNEL'],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Admin`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Moder`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: button.clicker.user.id,
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`],
+          },
+        ], parent: (await db.get(`Channels_${button.message.guild.id}.Cat`)), position: 1, topic: `A Ticket : <@!${button.clicker.user.id}>`, reason: "All rights reserved to HjOp"
+      }).then(async channel => {
+        channel = channel
+        await db.set(`ticket_${channel.id}_${button.message.guild.id}`, { count: count, ticket_by: button.clicker.user.id })
+
+        await button.reply.edit(`
+      **Your ticket has been successfully opened** <#${channel.id}>`, true)
+        let log_embed = new Discord.MessageEmbed()
+          .setTitle(`New ticket opened`)
+          .addField(`Ticket`, `<#${channel.id}>`)
+          .addField(`Ticket by`, `<@!${button.clicker.user.id}>`)
+          .addField(`Ticket number`, count)
+          .setTimestamp()
+          .setColor(`GREEN`)
+        channelLog(log_embed)
+        const embedticket = new Discord.MessageEmbed()
+          .setTimestamp()
+          .setTitle("Get Your Bot today")
+          .setFooter(`Ticket opened at`)
+          .setColor(`#33cd15`)
+          .setDescription(`Support will be with you soon.\n
+      To close this ticket, interact with 🔒`)
+        let idd = randomstring.generate({ length: 25 })
+        await db.set(`close_${button.clicker.user.id}`, idd)
+        let bu1tton = new disbut.MessageButton()
+          .setStyle(`red`)
+          .setEmoji(`🔒`)
+          .setLabel(`Close ticket`)
+          .setID(idd)
+        channel.send(`Welcome <@!${button.clicker.user.id}> wait for Supporter And Helper`, { embed: embedticket, component: bu1tton }).then(msg => {
+          msg.pin()
         })
+      })
+    }
+
+    if (button.values[0] === "des") { // design +
+      button.guild.channels.create(`tanya-donasi-${count}`, {
+        permissionOverwrites: [
+          {
+            id: button.guild.roles.everyone,
+            deny: ['VIEW_CHANNEL'],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Admin`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Moder`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: button.clicker.user.id,
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`],
+          },
+        ], parent: (await db.get(`Channels_${button.message.guild.id}.Cat`)), position: 1, topic: `A Ticket : <@!${button.clicker.user.id}>`, reason: "All rights reserved to HjOp"
+      }).then(async channel => {
+        channel = channel
+        await db.set(`ticket_${channel.id}_${button.message.guild.id}`, { count: count, ticket_by: button.clicker.user.id })
+
+        await button.reply.edit(`
+      **Your ticket has been successfully opened** <#${channel.id}>`, true)
+        let log_embed = new Discord.MessageEmbed()
+          .setTitle(`New ticket opened`)
+          .addField(`Ticket`, `<#${channel.id}>`)
+          .addField(`Ticket by`, `<@!${button.clicker.user.id}>`)
+          .addField(`Ticket number`, count)
+          .setTimestamp()
+          .setColor(`GREEN`)
+        channelLog(log_embed)
+        const embedticket = new Discord.MessageEmbed()
+          .setTimestamp()
+          .setTitle("Claim Your Reward")
+          .setFooter(`Ticket opened at`)
+          .setColor(`#33cd15`)
+          .setDescription(`Support will be with you soon.\n
+      To close this ticket, interact with 🔒`)
+        let idd = randomstring.generate({ length: 25 })
+        await db.set(`close_${button.clicker.user.id}`, idd)
+        let bu1tton = new disbut.MessageButton()
+          .setStyle(`red`)
+          .setEmoji(`🔒`)
+          .setLabel(`Close ticket`)
+          .setID(idd)
+        channel.send(`Welcome <@!${button.clicker.user.id}> wait for Supporter And Helper`, { embed: embedticket, component: bu1tton }).then(msg => {
+          msg.pin()
+        })
+      })
+    }
+
+    if (button.values[0] === "be") { // design +
+      button.guild.channels.create(`bugs-${count}`, {
+        permissionOverwrites: [
+          {
+            id: button.guild.roles.everyone,
+            deny: ['VIEW_CHANNEL'],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Admin`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Moder`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: button.clicker.user.id,
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`],
+          },
+        ], parent: (await db.get(`Channels_${button.message.guild.id}.Cat`)), position: 1, topic: `A Ticket : <@!${button.clicker.user.id}>`, reason: "All rights reserved to HjOp"
+      }).then(async channel => {
+        channel = channel
+        await db.set(`ticket_${channel.id}_${button.message.guild.id}`, { count: count, ticket_by: button.clicker.user.id })
+
+        await button.reply.edit(`
+      **Your ticket has been successfully opened** <#${channel.id}>`, true)
+        let log_embed = new Discord.MessageEmbed()
+          .setTitle(`New ticket opened`)
+          .addField(`Ticket`, `<#${channel.id}>`)
+          .addField(`Ticket by`, `<@!${button.clicker.user.id}>`)
+          .addField(`Ticket number`, count)
+          .setTimestamp()
+          .setColor(`GREEN`)
+        channelLog(log_embed)
+        const embedticket = new Discord.MessageEmbed()
+          .setTimestamp()
+          .setTitle("Error and Bugs")
+          .setFooter(`Ticket opened at`)
+          .setColor(`#33cd15`)
+          .setDescription(`Support will be with you soon.\n
+      To close this ticket, interact with 🔒`)
+        let idd = randomstring.generate({ length: 25 })
+        await db.set(`close_${button.clicker.user.id}`, idd)
+        let bu1tton = new disbut.MessageButton()
+          .setStyle(`red`)
+          .setEmoji(`🔒`)
+          .setLabel(`Close ticket`)
+          .setID(idd)
+        channel.send(`Welcome <@!${button.clicker.user.id}> wait for Supporter And Helper`, { embed: embedticket, component: bu1tton }).then(msg => {
+          msg.pin()
+        })
+      })
+    }
+    if (button.values[0] === "apl") { // apl +
+      button.guild.channels.create(`tanya-kota-${count}`, {
+        permissionOverwrites: [
+          {
+            id: button.guild.roles.everyone,
+            deny: ['VIEW_CHANNEL'],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Admin`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: (await db.get(`Staff_${button.message.guild.id}.Moder`)),
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`, `MANAGE_MESSAGES`],
+          },
+          {
+            id: button.clicker.user.id,
+            allow: ['VIEW_CHANNEL', `READ_MESSAGE_HISTORY`, `ATTACH_FILES`, `SEND_MESSAGES`],
+          },
+        ], parent: (await db.get(`Channels_${button.message.guild.id}.Cat`)), position: 1, topic: `A Ticket : <@!${button.clicker.user.id}>`, reason: "All rights reserved to HjOp"
+      }).then(async channel => {
+        channel = channel
+        await db.set(`ticket_${channel.id}_${button.message.guild.id}`, { count: count, ticket_by: button.clicker.user.id })
+
+        await button.reply.edit(`
+      **Your ticket has been successfully opened** <#${channel.id}>`, true)
+        let log_embed = new Discord.MessageEmbed()
+          .setTitle(`New ticket opened`)
+          .addField(`Ticket`, `<#${channel.id}>`)
+          .addField(`Ticket by`, `<@!${button.clicker.user.id}>`)
+          .addField(`Ticket number`, count)
+          .setTimestamp()
+          .setColor(`GREEN`)
+        channelLog(log_embed)
+        const embedticket = new Discord.MessageEmbed()
+          .setTimestamp()
+          .setTitle("Want any additionl Api key")
+          .setFooter(`Ticket opened at`)
+          .setColor(`#33cd15`)
+          .setDescription(`Support will be with you soon.\n
+      To close this ticket, interact with 🔒`)
+        let idd = randomstring.generate({ length: 25 })
+        await db.set(`close_${button.clicker.user.id}`, idd)
+        let bu1tton = new disbut.MessageButton()
+          .setStyle(`red`)
+          .setEmoji(`🔒`)
+          .setLabel(`Close ticket`)
+          .setID(idd)
+        channel.send(`Welcome <@!${button.clicker.user.id}> wait for Supporter And Helper`, { embed: embedticket, component: bu1tton }).then(msg => {
+          msg.pin()
+        })
+      })
+    }
+  }
+});
+
+client.on('clickButton', async (button1) => {
+  // if(message.member.hasPermission('ADMINISTRATOR')){
+  await button1.clicker.fetch()
+  let idd = randomstring.generate({ length: 25 })
+  await db.set(`close_${button1.clicker.user.id}_sure`, idd)
+  if (button1.id == (await db.get(`close_${button1.clicker.user.id}`))) {
+    let bu0tton = new disbut.MessageButton()
+      .setStyle(`red`)
+      .setLabel(`close`)
+      .setID(idd)
+    await button1.reply.send(`Are you sure you want to close this ticket?`, { component: bu0tton, ephemeral: true });
+  }
+  //       }else{
+
+  // message.channel.send('testing')
+
+  //       }
+})
+client.on('clickButton', async (button) => {
+  await button.clicker.fetch()
+  if (button.id == (await db.get(`close_${button.clicker.user.id}_sure`))) {
+    await button.reply.send(`Your order is executed after 5 seconds, and it will be closed`, true)
+    let ch = button.channel
+    if (!ch) return;
+    setTimeout(async () => {
+      try {
+        await ch.send({ embed: { description: `The ticket has already been closed <@!${button.clicker.user.id}>`, color: `YELLOW` } });
+        let type = 'member'
+        await Promise.all(ch.permissionOverwrites.filter(o => o.type === type).map(o => o.delete()));
+        ch.setName(`closed-ticket`)
+        let log_embed = new Discord.MessageEmbed()
+          .setTitle(`Ticket closed`)
+          .addField(`Ticket`, `<#${ch.id}>`)
+          .addField(`Action by`, `<@!${button.clicker.user.id}>`)
+          .setTimestamp()
+          .setColor(`YELLOW`)
+        channelLog(log_embed)
+      } catch (e) {
+        return button.channel.send(`An error occurred, please try again!`);
+      }
+    }, 4000)
+  }
+})
 client.login(process.env.TOKEN);
